@@ -6,9 +6,7 @@ services:
     restart: always
     build:
       context: ./nginx/
-      dockerfile: Dockerfile      
-    volumes:
-      - ./nginx/sites-enabled:/etc/nginx/sites-enabled
+      dockerfile: Dockerfile
     ports:
       - "80:80"
     networks:
@@ -22,7 +20,7 @@ services:
       dockerfile: Dockerfile
     env_file: .env
     volumes:
-      - ./web:/code
+      - web-volume:/code
     ports:
       - "801:8000"
     expose: 
@@ -35,12 +33,13 @@ services:
   db:
     container_name: postgres
     restart: always
-    image: postgres:latest
+    build:
+      context: ./postgres/
+      dockerfile: Dockerfile
     env_file: .env
     volumes:
-      - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-      - ./postgres/data:/var/lib/postgresql/data
-      - ./backups/postgresql:/backup
+      - postgres-volume:/var/lib/postgresql/data
+      - postgres-volume-backup:/backup
     networks:
       - back-tier
     expose:
@@ -58,4 +57,10 @@ services:
 networks:
   front-tier:
   back-tier:
+
+volumes:
+  web-volume:
+  postgres-volume:
+  postgres-volume-backup:
+
     
